@@ -1,0 +1,461 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="HeptagramV"><meta name="renderer" content="webkit"><meta name="copyright" content="HeptagramV"><meta name="keywords" content="七酱的布洛克"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>HDRP学习 · HeptagramV's Blog</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/web.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/headpic.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">七酱</div><div class="profile-signature">姑且算个游戏开发人</div><div class="friends"><div>FRIENDS</div><span><a href="//github.com/HeptagramV/HeptagramV.github.io" target="_black">Github</a></span><span><a href="//luogu.com.cn/user/67978" target="_black">Luogu</a></span><span><a href="//blog.csdn.net/HeptagramV?type=blog" target="_black">Csdn</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">HeptagramV's Blog</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">HDRP学习</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-04-27</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="学习"> 学习</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1>HDRP高清渲染管线详解内容</h1>
+<h2 id="HDRP配置文件介绍">HDRP配置文件介绍</h2>
+<h3 id="帧设置-Frame-Settings">帧设置 Frame Settings</h3>
+<p>帧设置针对的是场景中的Camera、Baked or Custom Reflection和Realtime Reflection的相关设置</p>
+<p>帧设置的优先级低于HDRP配置文件，即配置文件中没有打开对应功能时，帧设置将被自动禁用，可以通过上述三种组件的inspector界面打开</p>
+<p><strong>默认的volume设置会在场景中没有对应设置时启用</strong></p>
+<h3 id="Volume框架">Volume框架</h3>
+<p>volume通过调整各项HDRP功能的参数来影响画面的渲染，其优先级低于帧设置，即需要在帧设置中打开相关功能，volume中的调整才会起效。</p>
+<p><img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220418211922508.png" alt="HDRP配置文件"></p>
+<ul>
+<li>每个HDRP项目可以有多个HDRP文件，但是每次只能使用一个，也<strong>无法运行时切换</strong>；</li>
+<li>HDRP项目会为三种类型提供一套默认的帧设置，配置文件控制里面的功能；</li>
+<li>若需要在项目中使用在HDRP配置文件中启用的功能，需要确保帧设置中也同样启用了；</li>
+<li>可以在摄像机或者反射探针中自定义帧设置，这样就会覆盖默认帧设置的配置信息；</li>
+<li>一个场景可以创建多个volume，volume影响的是某个摄像机的画面效果，如果当前相机的帧设置中没有启用，那么volume调整就没有意义；</li>
+</ul>
+<h3 id="HDRP详细配置">HDRP详细配置</h3>
+<h4 id="颜色缓存格式-Color-Buffer-Format">颜色缓存格式 Color Buffer Format</h4>
+<p>只有在需要把HDRP渲染的画面合成到另外的图片上时需要使用R16G16B16A16，否则使用默认(不包含Alpha通道)即可</p>
+<h4 id="Lit着色器模式-Lit-Shader-Mode">Lit着色器模式 Lit Shader Mode</h4>
+<ul>
+<li>
+<p>Forward：Lit Shader仅使用前向渲染；<img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220418223423986.png" alt="前向渲染"></p>
+</li>
+<li>
+<p>Deferred：Lit Shader会使用延迟渲染；<img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220418223446589.png" alt="延迟渲染"></p>
+</li>
+<li>
+<p>Both：两者兼有</p>
+</li>
+</ul>
+<p>若选择了前向渲染则可选择MSAA抗锯齿（多重采样抗锯齿，原理是寻找出物体边缘部分的像素，然后再把画缩放到当前的显示器上。）</p>
+<h4 id="运动矢量-Motion-Vectors">运动矢量 Motion Vectors</h4>
+<p>如果禁用此选项则运动模糊和TAA不能实现</p>
+<h4 id="Runtime-Debug-Display">Runtime Debug Display</h4>
+<p>禁用可以减少构建时间和着色器内存占用，build时候建议禁用</p>
+<h4 id="平滑转换-Dithering-Cross-fade">平滑转换 Dithering Cross-fade</h4>
+<p>可以让HDRP在做LOD转换时进行平滑的转换</p>
+<h4 id="地形洞-Terrain-Hole">地形洞 Terrain Hole</h4>
+<p>启用后可以显示地形上的凹陷孔洞</p>
+<h4 id="透明背面-Transparent-Backface">透明背面 Transparent Backface</h4>
+<p>场景中若有使用透明材质则需要开启</p>
+<h4 id="光照-Lighting">光照 Lighting</h4>
+<ul>
+<li>
+<p>Screen Space Ambient Occlusion 屏幕空间环境光遮蔽；</p>
+</li>
+<li>
+<p>Volumetrics 体积光</p>
+</li>
+<li>
+<p>Light Layers 光照层</p>
+</li>
+<li>
+<p>Cookies 光线遮罩</p>
+</li>
+<li>
+<p>Reflections 反射</p>
+</li>
+<li>
+<p>sky 天空</p>
+<ul>
+<li>Reflection Size 控制用于计算反射信息的天空盒的分辨率(不影响天空盒本身质量)</li>
+<li>Lighting Override Mask 可以用来区分需要烘焙和无需烘焙的volume<img src="C:%5CUsers%5CHeptagramV%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20220418230611863.png" alt="volume配置"></li>
+</ul>
+</li>
+<li>
+<p>shadows 阴影</p>
+<ul>
+<li>Maximum Shadows on Screen 同屏显示最大阴影数量</li>
+<li>Filtering Quality 过滤质量</li>
+<li>Screen Space Shadows 屏幕空间阴影</li>
+</ul>
+</li>
+</ul>
+<h4 id="光照质量设置-Lighting-Quality-Settings">光照质量设置 Lighting Quality Settings</h4>
+<ul>
+<li>Screen Space Ambient Occlusion 屏幕空间环境光遮蔽：这里的品质内部设置会被应用于Volume中的Ambient Occlusion设置中</li>
+<li>Contact Shadows 接触阴影</li>
+<li>Screen Space Reflection 屏幕空间反射</li>
+</ul>
+<h4 id="材质-Material">材质 Material</h4>
+<ul>
+<li>Available Material Quality Levels 可用材质质量等级</li>
+<li>Default Material Quality Level 默认材质质量等级</li>
+<li>Distortion 变形</li>
+<li>Subsurface Scattering 次表面散射</li>
+<li>Fabric BSDF Convolution 启用后HDRP会单独为织物着色器计算一份反射探针数据，但会导致目前可见的反射探针数量减少一半</li>
+<li>Diffusion Profile List 漫射配置文件列表</li>
+</ul>
+<h4 id="后处理质量设置-Post-processing-Quality-Settings">后处理质量设置 Post-processing Quality Settings</h4>
+<ul>
+<li>Depth of Field 景深</li>
+<li>Motion Blur 运动模糊</li>
+<li>Bloom 泛光</li>
+<li>Chromatic Aberration 色差</li>
+</ul>
+<p>这些设置的低中高设置为volume组件中的后处理效果使用</p>
+<h3 id="Volume框架详解">Volume框架详解</h3>
+<p>主要作用：</p>
+<ul>
+<li>为场景设置来自天空盒的环境光照</li>
+<li>设置各种阴影效果</li>
+<li>设置场景中的雾效</li>
+<li>设置基于屏幕空间的反射和折射，环境光遮蔽</li>
+<li>设置后处理效果</li>
+<li>设置光追</li>
+</ul>
+<p>Global模式，意味着这个Volume是针对整个场景生效</p>
+<p>Local模式，意味着只在他的碰撞体作用区域内生效</p>
+<h4 id="重载-Override">重载 Override</h4>
+<ul>
+<li>
+<p>Exposure 曝光控制</p>
+<ul>
+<li>曝光的数值越高，相机接受的光线强度就越大；<img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220419152320006.png" alt="曝光区间"></li>
+</ul>
+</li>
+<li>
+<ul>
+<li>Mode指曝光模式，有Fixed固定曝光，Automatic自动曝光，Curve Mapping曲线控制，Use Physical Camera物理相机</li>
+<li>Metering Mode 计算用于曝光的灯光的模式</li>
+<li>Luminance Source 默认 Color Buffer</li>
+<li>Compensation 通常为0，可以用来控制获得曝光过度或者曝光不足的效果</li>
+<li>Limit Min&amp;Limit Max 控制自动曝光的最小值和最大值</li>
+<li>Adaptation 适应，控制画面曝光的变化速度</li>
+</ul>
+</li>
+<li>
+<p>Fog 雾效</p>
+<p>Hdrp雾效有两种做法，Volume中的Fog适合制作全局雾效；Rendering下的Density Volume适合制作局部雾效，若要制作体积雾，需要打开HDRP配置文件中的Lighting-&gt;Volumetrics和Volume Fog中的Volumetric Fog</p>
+<p>使用Density Mask Texture可以制作移动动画，可以使用脚本生成Texture3D也可以用PS制作，Scroll Speed可以控制各个方向的雾效移动速度</p>
+<p>Color Mode、Tint、Albedo、Anisotropy、Ambient Light可以关闭来节约性能</p>
+<ul>
+<li>Enable 用于一键开关雾效</li>
+<li>Fog Attenuation Distance 雾效衰减距离：用于控制雾的能见度</li>
+<li>Base Height 基础高度：其数值意为从何处开始向上，雾将以指数开始衰减</li>
+<li>Maximum Height 最大高度：控制能够显示雾的最高高度</li>
+<li>Max Fog Distance 雾效最大距离：超过此距离后雾将不再渲染，建议此距离设置大于相机中Clipping Planes-&gt;Far的数值，防止天空盒和场景的雾不一致</li>
+<li>Color Mode 颜色模式：控制雾的颜色，在sky模式下颜色会与天空色相乘，所以不会大幅改变颜色</li>
+<li>Volumetric Fog 体积雾</li>
+<li>Albedo 控制雾的整体颜色，不过雾本身无色，靠反射显示颜色，因此模拟现实时一般不打开此选项</li>
+<li>Ambient Light Probe Dimmer 环境光光照探针调光器：调整来自天空的环境光强度，数值越大则雾越亮</li>
+</ul>
+</li>
+<li>
+<p>Material 材质</p>
+<ul>
+<li>Diffusion Profile用于保存次表面散射的配置信息，这些文件需要先添加到HDRP配置文件中<img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220419182329728.png" alt="HDRP配置文件中的材质"></li>
+</ul>
+</li>
+<li>
+<p>Sky 天空</p>
+<ul>
+<li>Gradient Sky渐变天空：将Visual Environment 中的Sky改成Gradient Sky，HDRI Sky将不再起作用
+<ul>
+<li>Top、Middle、Bottom：控制大气层上半层、地平线、大气层下半层颜色</li>
+<li>Gradient Diffusion：用于控制地平线部分颜色覆盖区域大小：值大于0时越大地平线部分颜色覆盖区域越小，值为0则覆盖整个天空，小于零时Top和Bottom颜色互换，值越小地平线颜色覆盖越小</li>
+</ul>
+</li>
+<li>Physically Based Sky基于物理的天空：将Visual Environment 中的Sky改成Physically Based Sky，HDRI Sky将不再起作用；基于物理的天空不仅适合创造地球环境，也可以用于创造外星球环境
+<ul>
+<li>Earth Preset：选上之后与模拟地球天空无关的选项将隐藏</li>
+<li>Planet Center Position：地球直径为12742Km，所以此处Y轴设置为-6378100m</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Lighting 光照 将在之后详解</p>
+</li>
+<li>
+<p>Shadowing 阴影 同上</p>
+</li>
+<li>
+<p>Post-processing 后处理</p>
+<ul>
+<li>Tonemapping 色调映射</li>
+<li>Color Adjustment 颜色调整</li>
+<li>Bloom 泛光</li>
+<li>Chromatic Abberation 色差</li>
+<li>Vignette 晕映</li>
+<li>White Balance 白平衡</li>
+</ul>
+</li>
+</ul>
+<h4 id="Local-Volume使用">Local Volume使用</h4>
+<p>调节其Collider然后给他加入不同的override可以实现同一场景内不同区域存在不同的画面效果</p>
+<h3 id="HDRP光照系统">HDRP光照系统</h3>
+<h4 id="Lighting">Lighting</h4>
+<ul>
+<li>Emission 自发光
+<ul>
+<li>Color Temperature 颜色温度：色温越高越偏向蓝色，反之越偏向黄色，色温大于5000通常称为冷色调，反之称为暖色调</li>
+<li>Intensity 光照强度：控制实际太阳光的亮度，120000lux为“非常明亮的阳光”</li>
+<li>Indirect Multipier 间接光倍数：设为1用于模拟真实世界的光照，设为0则不会产生间接光信息(需要在Lighting Setting中启用Baked Global Illumination)</li>
+</ul>
+</li>
+<li>Volumetrics 体积雾：用于模拟光源发射的光线通过体积雾发生散射的现象，所以需要打开Fog</li>
+<li>Shadows 阴影：Enable控制开关，Resolution控制质量，Shadowmask Mode设置为Distance Shadowmask质量高消耗大</li>
+</ul>
+<h4 id="Reflection-Probe-反射探针">Reflection Probe 反射探针</h4>
+<ul>
+<li>可以像collider一样调整位置</li>
+<li>Type设为Baked，是目前最好的一种方式</li>
+</ul>
+<h4 id="Light-Probe-Group-光照探针">Light Probe Group 光照探针</h4>
+<p>光照探针组的作用是用烘焙的方式把场景中的间接光照信息烘焙到光照探针上，当游戏运行时，动态物体在各个区域内移动，虽然无法参与光照烘焙，但是可以通过采样这些光照探针上的间接光照信息，提供更逼真的表面光照效果。</p>
+<p>为了模拟间接光，有两种方法，<strong>光照贴图烘焙</strong>和实时光线追踪。</p>
+<p>目前unity使用的是自研的&quot;渐进式光照贴图烘焙 Progressive Lightmapper&quot;</p>
+<h4 id="光照烘焙窗口">光照烘焙窗口</h4>
+<ul>
+<li>Environment(HDRP)：可以指定所用的环境光Volume，并指定相关联的Sky作为环境光的来源；在这里可以使用当前场景中所用的volume，前提是此volume必须包含一个Sky相关的Override；也可以使用其他专门用于烘焙的volume，也需要包含sky，此处指定的sky提供的环境光信息会被烘焙到光照贴图中。</li>
+<li>Mixed Lighting：要想烘焙全局光照，必须在这里勾选上BGL，然后选择一种光照模式，Shadowmask除了烘焙间接光照也会把阴影烘焙进去，可以提供逼真的阴影效果。</li>
+<li>Lightmapping Settings：
+<ul>
+<li>Direct Samples、Indirect Samples和Environment Samples用于设置采样值，采样值越大，光照贴图细节越多，烘焙时间越长</li>
+<li>Bounces用于控制进行光线追踪计算时光线的反弹次数</li>
+<li>Filtering下分为Direct(直接)、Indirect(间接)、Ambient Occlusion(环境遮挡)，一般为他们选择同种降噪算法(Denoiser)，一般英伟达使用Optix，AMD选择Radeon Pro，OpenImageDenoise来自英特尔，是基于CPU的降噪算法，可以用于所有平台</li>
+<li>Lightmap Resolution用于控制光照贴图的分辨率，<strong>一般刚开始测试烘焙时可以尝试设置为20,30然后逐渐增加，直到能在合理的烘焙时长里获得满意的光照贴图细节</strong></li>
+<li>Lightmap Padding用于控制光照贴图中，按照UV分开的光照贴图区域之间的间隔大小，如果间隔太小可能造成光照贴图变越的颜色渗透，但是如果太大又会浪费光照贴图空间，增加贴图数量导致内存占用增大</li>
+<li>Lightmap Size用于控制每一张光照贴图的最大尺寸</li>
+</ul>
+</li>
+</ul>
+<h4 id="Volume中的Lighting">Volume中的Lighting</h4>
+<ul>
+<li>Indirect Lighting Controller间接光控制器
+<ul>
+<li>Indirect Diffuse Intensity间接光漫反射强度：HDRP会将由烘焙获得的光照贴图和光照探针上的数据乘以这个值</li>
+<li>Indirect Specular Intensity间接光高光强度：HDRP会将任何类型的反射探针上的数据乘以这个值</li>
+</ul>
+</li>
+</ul>
+<h4 id="Volume中的Shadow">Volume中的Shadow</h4>
+<ul>
+<li>对于聚光灯和点光源，Max distance控制投射阴影的最远距离</li>
+<li>对于平行光类型，Max distance控制阴影级联(Shadow Cascade)的最远显示距离，因此在Directional Light区域中有如下参数
+<ul>
+<li>Working Unit 工作单位：用于设置Split和Border数值的具体单位，如果设置为Metric则使用m做单位，如果设置为Percent则使用百分比数值</li>
+<li>Transmission Multiplier 光传输乘数：数值为0-1，可用于控制平行光照射到厚物体上时应用到光线强度上的乘数</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220421175224568.png" alt="阴影重载"></p>
+<p><strong>若要在Directional Light中打开接触阴影，必须在HDRP配置文件中设置Contact Shadows，并且在帧设置中打开接触阴影的选项</strong></p>
+<ul>
+<li>
+<p>Contact Shadow(Volume)</p>
+<ul>
+<li>Length：用于控制Raymarching(光线行进)算法所用的射线长度(m为单位)，代表射线可以捕捉到的用于阴影计算的细节的最长距离，<strong>为了解决接触阴影与普通阴影分离的问题可以调节此项</strong></li>
+<li>Opacity 透明度：用于控制阴影本身的透明度</li>
+<li>Quality 质量：质量越高采样数越大越消耗性能，选择Custom则可以自定义采样数量</li>
+<li><strong>接触阴影只会在当前场景中的“主光源”上起作用</strong>:
+<ul>
+<li>当场景中没有Directional Light时，HDRP判断哪一盏灯的包围盒尺寸最大来确定主光源</li>
+<li>若有平行光则平行光为主光源</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Micro Shadows 微阴影</p>
+<p>会使用材质上的法线贴图和环境光遮蔽贴图来计算物体表面微小的阴影</p>
+</li>
+<li>
+<p>Ambient Occlusion 环境光遮蔽</p>
+<ul>
+<li>环境光遮蔽也是基于屏幕空间计算的，所以会出现边缘问题，因此原则上不能把效果做明显，而是辅助为主</li>
+<li>Intensity 强度：数值越大，效果越强，影响区域(墙角，空洞等)会变的更黑</li>
+<li>Direct Lighting Strength 直接光照强度：用于控制接受直接光照的区域的环境光遮蔽强度，数值越大该区域越黑</li>
+<li>Radius 半径范围：此数值越大，环境光遮蔽起作用的区域越大，但是显示质量可能降低</li>
+<li>Temporal Accumulation：启用该选项可以在计算AO时，利用前面生成的帧获得更好的效果(需要在相机的Custom Frame Settings中启用Motion Vectors支持)，但是会产生鬼影效果</li>
+<li>Ghosting Reduction 减弱鬼影：调低鬼影会严重，但是调高噪点会多，因此折中使用0.5</li>
+</ul>
+</li>
+</ul>
+<h4 id="Unity内光照">Unity内光照</h4>
+<p>spot light为例子介绍部分通用设置：</p>
+<ul>
+<li>
+<p>General 通用设置</p>
+<ul>
+<li>Mode 光源模式：可以选择Realtime、Mixed或者Baked；如果选择Realtime，这盏灯只提供直接光照，如果选择Baked，只提供烘焙到光照贴图和光照探针中的信息(烘焙完成后可以禁用这盏灯，因为他不会在游戏过程中发挥作用)，Mixed是最灵活的模式，能提供直接和间接光照信息，而且游戏运行时也能提供实时光照和阴影；</li>
+<li>Light Layer 光照层：控制这盏灯对场景中哪些物体投射光线；</li>
+</ul>
+</li>
+<li>
+<p>Shape 光源形状</p>
+<ul>
+<li>Shape：控制光线的整体形状</li>
+<li>Outer Angle：控制圆锥体的外射角度</li>
+<li>Inner Angle：控制内侧的圆锥体角度</li>
+<li>Radius：用于控制光源的半径范围，此参数对高光的强弱、灯光的衰减还有阴影的柔和程度都有影响；此数值越大，产生的阴影越柔和</li>
+</ul>
+</li>
+<li>
+<p>Emission 发光设置</p>
+<ul>
+<li>Filter 和 Color Temperature：没有启用后者时，改变Filter的颜色可以直接改变灯光的颜色，当启用后者时，HDPR会使用Filter选择的颜色和Color Temperature的颜色计算得到结果颜色</li>
+<li>Intensity：单位可以选择Lumen，Candela，Lux和EV100</li>
+<li>Range 光照范围</li>
+<li>Indirect Multiplier 间接光倍数：设置为0则光照烘焙时无间接光，默认为1模拟真实世界的间接光</li>
+<li>Cookie 光线遮罩：无需消耗很多性能就能通过使用一张2D纹理或者Cubemap来模拟复杂的光照效果</li>
+<li>Reflector 反光板：可以不增大光照强度的情况下大大增强聚光灯的光照强度</li>
+<li>Affect Diffuse 影响漫反射</li>
+<li>Affect Specular 影响高光</li>
+<li>Range Attenuation 光照范围衰减：打开之后可以控制光线按照距离衰减，比较真实</li>
+<li>Fade Distance：如果画面的相机离开光源的距离超过该数值，那么光源的光照信息将消失</li>
+<li>Intensity Multiplier 光照强度倍数：这里的数值会和Intensity相乘，<strong>可以通过调整这个倍数数值使用Timeline、动画或者脚本来动态控制光照强度</strong></li>
+</ul>
+</li>
+<li>
+<p>Volumetrics 体积光 (此选项不支持Area Light)</p>
+<ul>
+<li>Multiplier 体积光倍数：用于控制体积光的光照强度</li>
+<li>Shadow Dimmer 阴影调光器：用于控制体积雾的强度，设置为0可以让体积雾散射的计算加快，提高性能</li>
+</ul>
+</li>
+<li>
+<p>Shadows 阴影</p>
+<ul>
+<li>
+<p>Update Mode 更新模式</p>
+<ul>
+<li>Every Frame：每一帧都计算更新阴影</li>
+<li>On Enable：只在当前光源的Gameobject启用时计算并更新阴影</li>
+<li>On Demand：只有在脚本中调用HDadditionalLightData组件的RequestShadowMapRendering()方法时才会计算(新版本可能没有这个组件)</li>
+</ul>
+</li>
+<li>
+<p>Resolution 阴影分辨率：用于设置阴影的分辨率大小，具体数值可以在HDRP配置文件中指定</p>
+</li>
+<li>
+<p>Near Plane 近平面：单位为m，控制光源到受光物体开始投射阴影的距离<img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220426122302816.png" alt="近平面"></p>
+</li>
+<li>
+<p>Shadowmask Mode 阴影遮罩模式：<img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220426123438879.png" alt="阴影遮罩模式"></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="抗锯齿处理">抗锯齿处理</h3>
+<p>在HDRP中，根据使用的Lit Shader Mode不同，需要使用不同的抗锯齿方式</p>
+<ul>
+<li>如果模式为只有前向渲染或者Both，可以使用<strong>MSAA</strong>(Multisample Anti-Aliasing 硬件抗锯齿)，和<strong>主相机上后处理抗锯齿</strong>这两种方式，如果都使用则效果会叠加</li>
+<li>如果模式为只有延迟渲染，只能使用<strong>主相机上后处理抗锯齿</strong></li>
+<li>MSAA的目的是移除多边形边缘的锯齿，但是比较消耗性能，会增加内存和CPU的占用。</li>
+<li>主相机上的抗锯齿：
+<ul>
+<li>FXAA针对锯齿进行模糊处理，它的速度是三种中最快的，适用于移动端等硬件条件不够好的平台</li>
+<li>SMAA在消除锯齿的同时会让画面变得更锐利，比FXAA稍微费性能，但是可能会忽略某些锯齿</li>
+<li>TAA相比于前两者，可以处理更多情况下的锯齿
+<ul>
+<li>使用TAA必须在HDRP配置文件中打开运动矢量</li>
+<li>TAA Sharpen Strength 数值越大处理过的锯齿越锐利</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">HeptagramV</a></p><p> <span>Link:  </span><a href="http://example.com/2022/04/27/HDRP%E5%AD%A6%E4%B9%A0/">http://example.com/2022/04/27/HDRP%E5%AD%A6%E4%B9%A0/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2022/04/27/%E5%AF%BB%E5%BF%86%E9%AD%94%E5%A5%B3/" title="寻忆魔女"><span>NextPost ></span><br><span class="nextTitle">寻忆魔女</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">HDRP高清渲染管线详解内容</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HDRP%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">HDRP配置文件介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%A7%E8%AE%BE%E7%BD%AE-Frame-Settings"><span class="toc-number">1.1.1.</span> <span class="toc-text">帧设置 Frame Settings</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Volume%E6%A1%86%E6%9E%B6"><span class="toc-number">1.1.2.</span> <span class="toc-text">Volume框架</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDRP%E8%AF%A6%E7%BB%86%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.3.</span> <span class="toc-text">HDRP详细配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%9C%E8%89%B2%E7%BC%93%E5%AD%98%E6%A0%BC%E5%BC%8F-Color-Buffer-Format"><span class="toc-number">1.1.3.1.</span> <span class="toc-text">颜色缓存格式 Color Buffer Format</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Lit%E7%9D%80%E8%89%B2%E5%99%A8%E6%A8%A1%E5%BC%8F-Lit-Shader-Mode"><span class="toc-number">1.1.3.2.</span> <span class="toc-text">Lit着色器模式 Lit Shader Mode</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%90%E5%8A%A8%E7%9F%A2%E9%87%8F-Motion-Vectors"><span class="toc-number">1.1.3.3.</span> <span class="toc-text">运动矢量 Motion Vectors</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Runtime-Debug-Display"><span class="toc-number">1.1.3.4.</span> <span class="toc-text">Runtime Debug Display</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%B3%E6%BB%91%E8%BD%AC%E6%8D%A2-Dithering-Cross-fade"><span class="toc-number">1.1.3.5.</span> <span class="toc-text">平滑转换 Dithering Cross-fade</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%B0%E5%BD%A2%E6%B4%9E-Terrain-Hole"><span class="toc-number">1.1.3.6.</span> <span class="toc-text">地形洞 Terrain Hole</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%8F%E6%98%8E%E8%83%8C%E9%9D%A2-Transparent-Backface"><span class="toc-number">1.1.3.7.</span> <span class="toc-text">透明背面 Transparent Backface</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%89%E7%85%A7-Lighting"><span class="toc-number">1.1.3.8.</span> <span class="toc-text">光照 Lighting</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%89%E7%85%A7%E8%B4%A8%E9%87%8F%E8%AE%BE%E7%BD%AE-Lighting-Quality-Settings"><span class="toc-number">1.1.3.9.</span> <span class="toc-text">光照质量设置 Lighting Quality Settings</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%90%E8%B4%A8-Material"><span class="toc-number">1.1.3.10.</span> <span class="toc-text">材质 Material</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8E%E5%A4%84%E7%90%86%E8%B4%A8%E9%87%8F%E8%AE%BE%E7%BD%AE-Post-processing-Quality-Settings"><span class="toc-number">1.1.3.11.</span> <span class="toc-text">后处理质量设置 Post-processing Quality Settings</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Volume%E6%A1%86%E6%9E%B6%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.1.4.</span> <span class="toc-text">Volume框架详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E8%BD%BD-Override"><span class="toc-number">1.1.4.1.</span> <span class="toc-text">重载 Override</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Local-Volume%E4%BD%BF%E7%94%A8"><span class="toc-number">1.1.4.2.</span> <span class="toc-text">Local Volume使用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDRP%E5%85%89%E7%85%A7%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.1.5.</span> <span class="toc-text">HDRP光照系统</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Lighting"><span class="toc-number">1.1.5.1.</span> <span class="toc-text">Lighting</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Reflection-Probe-%E5%8F%8D%E5%B0%84%E6%8E%A2%E9%92%88"><span class="toc-number">1.1.5.2.</span> <span class="toc-text">Reflection Probe 反射探针</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Light-Probe-Group-%E5%85%89%E7%85%A7%E6%8E%A2%E9%92%88"><span class="toc-number">1.1.5.3.</span> <span class="toc-text">Light Probe Group 光照探针</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%89%E7%85%A7%E7%83%98%E7%84%99%E7%AA%97%E5%8F%A3"><span class="toc-number">1.1.5.4.</span> <span class="toc-text">光照烘焙窗口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Volume%E4%B8%AD%E7%9A%84Lighting"><span class="toc-number">1.1.5.5.</span> <span class="toc-text">Volume中的Lighting</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Volume%E4%B8%AD%E7%9A%84Shadow"><span class="toc-number">1.1.5.6.</span> <span class="toc-text">Volume中的Shadow</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Unity%E5%86%85%E5%85%89%E7%85%A7"><span class="toc-number">1.1.5.7.</span> <span class="toc-text">Unity内光照</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%97%E9%94%AF%E9%BD%BF%E5%A4%84%E7%90%86"><span class="toc-number">1.1.6.</span> <span class="toc-text">抗锯齿处理</span></a></li></ol></li></ol></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
