@@ -1,0 +1,391 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="HeptagramV"><meta name="renderer" content="webkit"><meta name="copyright" content="HeptagramV"><meta name="keywords" content="七酱的布洛克"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>Shader入门精要学习 · HeptagramV's Blog</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/web.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/headpic.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">七酱</div><div class="profile-signature">姑且算个游戏开发人</div><div class="friends"><div>FRIENDS</div><span><a href="//github.com/HeptagramV/HeptagramV.github.io" target="_black">Github</a></span><span><a href="//luogu.com.cn/user/67978" target="_black">Luogu</a></span><span><a href="//blog.csdn.net/HeptagramV?type=blog" target="_black">Csdn</a></span></div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">HeptagramV's Blog</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">Shader入门精要学习</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-04-29</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="学习"> 学习</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1>Shader入门精要</h1>
+<h2 id="基础篇">基础篇</h2>
+<h3 id="第二章-渲染流水线">第二章 渲染流水线</h3>
+<h4 id="2-1-简介">2.1 简介</h4>
+<p>流水线指每一个生产单位只专注处理某一个片段的工作,以提高工作效率及产量。</p>
+<p>渲染流水线的工作任务在于由一个三维场景出发、生成/渲染一张二维图像。即计算机要从一系列的顶点数据、纹理等信息出发，把这些信息最终转换成一张人眼可以看到的图像。该工作由CPU和GPU共同完成。</p>
+<p>一个渲染流程由**应用阶段（Application Stage）、几何阶段（Geometry Stage）、光栅化阶段（Rasterizer Stage）**构成；</p>
+<p>其中应用阶段输出<strong>渲染图元</strong>，几何阶段输出<strong>屏幕空间的顶点信息</strong>，光栅化阶段<strong>产生像素并渲染最终图像</strong></p>
+<h4 id="2-2-CPU和GPU之间的通信">2.2 CPU和GPU之间的通信</h4>
+<p>通信过程发生在在CPU进行的<strong>应用阶段</strong>：</p>
+<ol>
+<li>
+<p>把数据加载到显存中</p>
+</li>
+<li>
+<p>设置渲染状态</p>
+</li>
+<li>
+<p>调用Draw Call</p>
+</li>
+</ol>
+<h4 id="2-3-GPU流水线">2.3 <strong>GPU流水线</strong></h4>
+<ul>
+<li>当GPU从CPU得到渲染命令后，就会进行一系列流水线操作，最终把图元绘制到屏幕上。该流水线操作即之前提到的<strong>几何阶段和光栅化阶段</strong>。</li>
+<li>而几何阶段可分为顶点着色器-&gt;曲面细分着色器-&gt;几何着色器-&gt;裁剪-&gt;屏幕映射</li>
+<li>光栅化阶段可分为三角形设置-&gt;三角形遍历-&gt;片元着色器-&gt;逐片元操作</li>
+<li>最终输出屏幕图像。</li>
+</ul>
+<h4 id="2-4-术语解释及本章解惑">2.4 术语解释及本章解惑</h4>
+<p>在Unity中大部分功能被封装，我们只需要在一个Unity Shader设置一些输入、编写顶点着色器和片元着色器，设置一些状态就可以达到大部分常见的屏幕效果。</p>
+<h5 id="2-4-1-什么是OpenGL-DirectX">2.4.1 什么是OpenGL/DirectX</h5>
+<ul>
+<li>图像应用编程接口，用于渲染二维或三维图形，这些接口架起了上层应用程序和底层GPU的沟通桥梁。</li>
+<li>我们运行在CPU上的应用程序通过调用它们的图形接口将渲染所需的数据(顶点数据、纹理数据、材质参数等)存储在显存中的特定区域，随后开发者通过图像编程接口发出Draw Call，它们被显卡驱动翻译成GPU能够理解的代码，进行绘制。</li>
+<li>因为显卡驱动的存在，几乎所有的GPU都可以和OpenGL或DirectX合作，显卡驱动作为中介者和图像编程接口及GPU打交道，显卡制作商便必须提供支持两种接口的显卡驱动。</li>
+</ul>
+<h5 id="2-4-2-什么是HLSL、GLSL、Cg">2.4.2 什么是HLSL、GLSL、Cg</h5>
+<p>对于可编程的着色器阶段，我们可以使用一种特定的语言来编写程序，在可编程管线出现之前，开发者使用汇编语言编写着色器代码，而为了方便，出现了更高级的<strong>着色语言(Shading Language)</strong>，专门用来编写着色器。</p>
+<ul>
+<li>DirectX的HLSL(High Level Shading Language)
+<ul>
+<li>微软控制着色器的编译，因此支持HLSL的平台相对比较有限，几乎完全是微软产品，因为其他平台没有可以编译HLSL的编译器。</li>
+</ul>
+</li>
+<li>OpenGL的GLSL(OpenGL Shading Language)
+<ul>
+<li>具有跨平台性，可以在Windows,Linux,Mac和移动等多种平台工作，是由于OpenGL没有提供着色器编译器，而是由显卡驱动来完成着色器的编译工作。</li>
+</ul>
+</li>
+<li>NVIDIA的Cg(C for Graphic)
+<ul>
+<li>真正意义上的跨平台，它会根据平台的不同，编译成相应的中间语言。Cg由于和微软合作，导致Cg的语法和HLSL非常相像，缺点是无法完全发挥出OpenGL的最新特性。</li>
+</ul>
+</li>
+</ul>
+<p>而在Unity里，我们可以选择&quot;Cg/HLSL&quot;或者&quot;GLSL&quot;，但是Unity里的<strong>并不是真正意义上的对应的着色语言</strong>，尽管他们的语法几乎一样。</p>
+<h5 id="2-4-3-什么是Draw-Call">2.4.3 什么是Draw Call</h5>
+<p>CPU调用图像编程接口，如OpenGL中的glDrawElements命令或者DirectX中的DrawIndexedPrimitive命令，以命令GPU进行渲染的操作。</p>
+<h6 id="CPU和GPU是如何实现并行工作的？">CPU和GPU是如何实现并行工作的？</h6>
+<ul>
+<li>使用<strong>命令缓冲区(Command Buffer)</strong>，其包含了一个命令队列，由CPU向其中添加命令，而由GPU从中读取命令，添加和读取的命令相互独立，这使得CPU和GPU可以相互独立工作，Draw Call就是其中一种命令。</li>
+</ul>
+<h6 id="为什么Draw-Call多了会影响帧率？">为什么Draw Call多了会影响帧率？</h6>
+<ul>
+<li>就像复制10000个1KB的文件用时会比复制1个1MB的文件长，每次复制动作的额外操作很多。</li>
+<li>每次调用Draw Call时CPU也要完成很多工作，GPU的渲染能力很强，其渲染速度往往快于CPU提交命令的速度，若Draw Call的数量太多，CPU就会把大量时间花费在提交Draw Call上，造成CPU的过载。</li>
+</ul>
+<h6 id="如何减少Draw-Call？">如何减少Draw Call？</h6>
+<ul>
+<li>有很多方法，但是常用的是使用**批处理(Batching)**的方法。</li>
+<li>把很多小的Draw Call合并成一个大的Draw Call，这就是批处理的思想。</li>
+<li>我们需要在CPU的内存中合并网格，而合并的过程需要消耗时间，因此批处理适合静态物体，因为他们只需要合并一次。</li>
+<li>在游戏开发中，为了减少Draw Call：
+<ul>
+<li>我们应避免使用大量很小的网格，不可避免时，考虑是否可以合并他们。</li>
+<li>避免使用过多的材质，尽量在不同的网格直接共用同一个材质。</li>
+</ul>
+</li>
+</ul>
+<h5 id="2-4-4-什么是固定管线渲染">2.4.4 什么是固定管线渲染</h5>
+<ul>
+<li><strong>固定函数的流水线(Fixed-Function Pipeline)</strong>，简称为固定管线，通常指在较旧的CPU上实现的渲染流水线。这种流水线只给开发者提供一些配置操作，开发者没有对流水线阶段的完全控制权。</li>
+<li>我们用固定管线进行渲染，就像控制电路上的多个开关，我们可以选择打开或关闭开关，但是不能控制电路的排布。</li>
+</ul>
+<h4 id="2-5-Shader">2.5 Shader</h4>
+<p>Shader所在的阶段就是渲染流水线的一部分，更具体来说，Shader就是：</p>
+<ul>
+<li><strong>GPU流水线上一些可高度编程的阶段</strong>，而由着色器编译出来的最终代码是会在GPU上运行的；</li>
+<li><strong>有一些特定类型的着色器</strong>，如顶点着色器、片元着色器等；</li>
+<li><strong>依靠着色器我们可以控制流水线中的渲染细节</strong>，例如用顶点着色器来进行顶点变换以及传递数据，用片元着色器来进行逐像素的渲染。</li>
+</ul>
+<h3 id="第三章-Unity-Shader基础">第三章 Unity Shader基础</h3>
+<h4 id="3-2-ShaderLab">3.2 ShaderLab</h4>
+<p>是一种专门为Unity Shader服务的语言。</p>
+<p>一个Unity Shader的基础结构如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Shader &quot;ShaderName&quot;&#123;</span><br><span class="line">   Properties&#123;</span><br><span class="line">      //属性</span><br><span class="line">   &#125;</span><br><span class="line">   SubShader&#123;</span><br><span class="line">      //显卡A使用的子着色器</span><br><span class="line">   &#125;</span><br><span class="line">   SubShader&#123;</span><br><span class="line">      //显卡B使用的子着色器</span><br><span class="line">   &#125;</span><br><span class="line">   Fallback &quot;VertexLit&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3-3-2-Properties">3.3.2 Properties</h5>
+<p>​    Properties语义块中包含了一系列<strong>属性(property)</strong>，这些属性将会出现在材质面板中，我们需要使用他们的**名字(Name)**来访问，<strong>显示的名称(display name)<strong>则是出现在材质面板上的名字，我们还需要为每个属性指定它的</strong>类型(PropertyType)</strong>，除此之外，我们还要为每个属性制定一个默认值，第一次将其赋给某个材质时将显示默认值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Properties&#123;</span><br><span class="line">   Name(&quot;display name&quot;, PropertyType) = DefaultValue</span><br><span class="line">   Name(&quot;display name&quot;, PropertyType) = DefaultValue</span><br><span class="line">   //更多属性</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="3-3-3-SubShader">3.3.3 SubShader</h5>
+<p>​    每一个Unity Shader文件可以包含多个SubShader语义块，但最少要有一个。当Unity需要加载这个Unity Shader时，Unity会扫描所有的SubShader语义块，然后选择第一个能够在目标平台上运行的SubShader。如果都不支持的话，Unity就会使用Fallback语义指定的Unity Shader，这样是为的在不同的显卡上使用不同的着色器。</p>
+<p>SubShader语义块中包含的定义通常如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">SubShader&#123;</span><br><span class="line">   //可选的</span><br><span class="line">   [Tags]</span><br><span class="line">   </span><br><span class="line">   //可选的</span><br><span class="line">   [RenderSetup]</span><br><span class="line">   </span><br><span class="line">   pass&#123;</span><br><span class="line">   &#125;</span><br><span class="line">   //Other Passes</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>SubShader中定义了一系列Pass以及可选的**状态([RenderSetup])<strong>和</strong>标签([Tags])**设置。每个Pass定义了一次完整的渲染流程，但如果Pass的数目过多，往往会造成渲染性能的下降。</p>
+<p>状态和标签同样可以在Pass声明；不同的是，SubShader中的一些标签设置是特定的，如果我们在SubShader进行了这些设置，那么将会用于所有的Pass。</p>
+<p>ShaderLab提供了一系列渲染状态的设置指令，这些指令可以设置显卡的各种状态，例如是否开启混合/深度测试等</p>
+<p>​                                                                        <strong>常见的渲染状态设置选项</strong></p>
+<table>
+<thead>
+<tr>
+<th>状态名称</th>
+<th>设置指令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cull</td>
+<td>Cull Back | Front | Off</td>
+<td>设置剔除模式：剔除背面/正面/关闭剔除</td>
+</tr>
+<tr>
+<td>ZTest</td>
+<td>ZTest Less Greater | LEqual | GEqual | Equal | NotEqual | Always</td>
+<td>设置深度测试时使用的函数</td>
+</tr>
+<tr>
+<td>ZWrite</td>
+<td>ZWrite On | Off</td>
+<td>开启/关闭深度写入</td>
+</tr>
+<tr>
+<td>Blend</td>
+<td>Blend SrcFactor DstFactor</td>
+<td>开启并设置混合模式</td>
+</tr>
+</tbody>
+</table>
+<p>当在SubShader块中设置了上述渲染状态时，将会用到所有的Pass，可以在Pass语义块中单独进行上述设置。</p>
+<h6 id="标签">标签</h6>
+<p>SubShader的<strong>标签(Tags)<strong>是一个</strong>键值对</strong>，他的Key和Value都是String，它们用来告诉Unity的渲染引擎：我希望怎样以及何时渲染这个对象。</p>
+<p>标签的结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Tags &#123; &quot;TagName1&quot; = &quot;Value1&quot; &quot;TagName2&quot; = &quot;Value2&quot; &#125;</span><br></pre></td></tr></table></figure>
+<h6 id="Pass语义块">Pass语义块</h6>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Pass &#123;</span><br><span class="line">    [Name]</span><br><span class="line">    [Tags]</span><br><span class="line">    [RenderSetup]</span><br><span class="line">    //Other code</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以在Pass中定义该Pass的名称，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Name &quot;MyPassName&quot;</span><br></pre></td></tr></table></figure>
+<p>通过这个名称，我们可以使用ShaderLab的UsePass命令来直接使用其他Unity Shader中的Pass，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UsePass &quot;MyShader/MYPASSNAME&quot;</span><br></pre></td></tr></table></figure>
+<p>因为Unity内部会把所有Pass名称转换为大写，所以<strong>使用UsePass时必须使用大写形式的名字</strong></p>
+<p>SubShader的状态设置同样适用于Pass，在Pass中还可以使用固定管线的着色器</p>
+<p>Pass同样可以设置标签，但是不同于SubShader的标签，不过这些标签也是用于告诉渲染引擎我们希望怎样来渲染物体。</p>
+<h6 id="Fallback">Fallback</h6>
+<p>紧跟在各个SubShader语义块之后的指令：告诉Unity，如果以上所有SubShader在这块显卡上都不能运行，那就使用这个最低级的Shader。</p>
+<h5 id="3-4-1-表面着色器">3.4.1 表面着色器</h5>
+<p>表面着色器是Unity对顶点/片元着色器的更高一层的抽象，它存在的价值在于Unity为我们处理了很多光照细节。</p>
+<p>表面着色器被定义在SubShader语义块中的CGPROGRAM和ENDCG之间，使用Unity封装的Cg/HLSL编写，因此原生的某些Cg/HLSL函数将不能使用。</p>
+<h5 id="3-4-2-顶点-片元着色器">3.4.2 顶点/片元着色器</h5>
+<p>顶点/片元着色器的代码也需要定义在CGPROGRAM和ENDCG之间，但是它写在Pass语义块内而非SubShader内，因为我们需要自己定义每个Pass需要使用的Shader代码，我们可以控制渲染的实现细节。</p>
+<h5 id="3-4-4-形式的选择">3.4.4 形式的选择</h5>
+<ul>
+<li>除非你有非常明确的需求必须使用固定函数着色器，例如要在非常旧的设备上运行，否则请使用可编程管线的着色器，即表面着色器或顶点/片元着色器。</li>
+<li>如果你想和各种光源打交道，你可能更喜欢使用表面着色器，但需要小心它在移动平台的性能表现。</li>
+<li>如果你需要使用的光照数目非常少，例如只有一个平行光，那么使用顶点/片元着色器是一个更好的选择。</li>
+<li>如果你有很多自定义的渲染效果，那么请选择顶点/片元着色器。</li>
+</ul>
+<h3 id="第四章-数学">第四章 数学</h3>
+<p><strong>需要熟练掌握线性代数以及图形学基础相关知识</strong></p>
+<h3 id="第五章-开始Unity-Shader">第五章 开始Unity Shader</h3>
+<h4 id="5-2-一个最简单的顶点-片元着色器">5.2 一个最简单的顶点/片元着色器</h4>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">Shader &quot;Custom/Chapter5-SimpleShader&quot;</span><br><span class="line">&#123;</span><br><span class="line">	Properties &#123;</span><br><span class="line">		_Color (&quot;Color Tint&quot;, Color) = (<span class="number">1.0</span>,<span class="number">1.0</span>,<span class="number">1.0</span>,<span class="number">1.0</span>)<span class="comment">//声明一个Color类型的属性，对应白色</span></span><br><span class="line">	&#125;</span><br><span class="line">	SubShader &#123;</span><br><span class="line">		Pass &#123;</span><br><span class="line">			CGPROGRAM</span><br><span class="line"></span><br><span class="line">			<span class="meta">#pragma vertex vert</span></span><br><span class="line">			<span class="meta">#pragma fragment frag</span></span><br><span class="line">			<span class="comment">//告诉Unity哪个函数包含顶点着色器/片元着色器的代码的编译指令，vert和frag是我们指定的函数名</span></span><br><span class="line"></span><br><span class="line">			fixed4 _Color;<span class="comment">//在Cg代码中，我们需要定义一个与属性名称和类型都匹配的变量</span></span><br><span class="line"></span><br><span class="line">			struct a2v &#123;</span><br><span class="line">			<span class="comment">//这些语义中获取的数据来自使用该材质的Mesh Render组件提供的；在每帧调用Draw Call的时候，Mesh Render会把他负责渲染的模型数据发送给Unity Shader</span></span><br><span class="line">				float4 vertex : POSITION;<span class="comment">//获取模型空间的顶点坐标</span></span><br><span class="line">				float3 normal: NORMAL;<span class="comment">//获取模型空间的法线方向</span></span><br><span class="line">				float4 texcoord: TEXCOORD0;<span class="comment">//获取模型的第一套纹理坐标</span></span><br><span class="line">			&#125;;</span><br><span class="line">			struct v2f &#123;<span class="comment">//该结构体用于在顶点和片元着色器之间通信</span></span><br><span class="line">				float4 pos : SV_POSITION;<span class="comment">//pos通过SV_POSITION语义包含了顶点在裁剪空间里的位置信息</span></span><br><span class="line">				fixed3 color : COLOR0;<span class="comment">//color存储了颜色信息</span></span><br><span class="line">			&#125;;</span><br><span class="line">			v2f vert(a2v v) &#123;<span class="comment">//声明输出结构</span></span><br><span class="line">				v2f o;</span><br><span class="line">				o.pos = UnityObjectToClipPos(v.vertex);<span class="comment">//在Unity5.6以后，UNITY_MATRIX_MVP运算的矩阵或者向量的mul方法，会转换成UnityObjectToClipPos方法。</span></span><br><span class="line">				o.color = v.normal * <span class="number">0.5</span> + fixed3(<span class="number">0.5</span>,<span class="number">0.5</span>,<span class="number">0.5</span>);<span class="comment">//v.normal包含了顶点的法线方向，其分量范围[-1.0,1.0]，而该语句将其映射到了[0.0,1.0],并存储到o.color中</span></span><br><span class="line">				<span class="keyword">return</span> o;<span class="comment">//将结构体v2f o中包含的位置以及颜色信息传递给了片元着色器</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">//片元着色器的输入实际上是把顶点着色器的输出进行插值后的结果，因此v2f o得以输入到片元着色器中</span></span><br><span class="line">			fixed4 frag(v2f i) : SV_Target &#123;<span class="comment">//没有输入，输出是一个fixed4类型的变量，SV_TARGET语义告诉渲染器，把用户的输出颜色存储到一个渲染目标中，这里将输入到默认的帧缓存中</span></span><br><span class="line">				fixed3 c = i.color;</span><br><span class="line">				c*=_Color.rgb;<span class="comment">//使用_Color属性来控制输出颜色</span></span><br><span class="line">				<span class="keyword">return</span> fixed4(c,<span class="number">1.00</span>);<span class="comment">//将插值后的i.color显示到屏幕上</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			ENDCG</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/image-20220428123503817.png" alt="ShaderLab属性类型和Cg变量类型的匹配关系"></p>
+<h4 id="5-3-Unity提供的内置文件和变量">5.3 Unity提供的内置文件和变量</h4>
+<p>UnityCG.cginc 是最常接触的包含文件之一，提供了很多结构体和函数，详见文档</p>
+<h4 id="5-4-Unity提供的Cg-HLSL语义">5.4 Unity提供的Cg/HLSL语义</h4>
+<p>语义可以让Shader知道从哪里读取数据，并把数据输出到哪里；</p>
+<p>Unity对某些语义有一些特别规定的含义，例如输入结构体中，用TRXCOORD0来描述texcoord，Unity会识别TEXCOORD0，来赋予texcoord模型的<strong>第一组纹理坐标</strong>；</p>
+<p>在DirectX10以后，新增了系统数值语义(system-value semantics)，以SV开头，在渲染流水线上有特殊的含义：如使用SV_POSITION来描述顶点着色器的输出变量pos，就表示pos包含了<strong>可用于光栅化的变换后的顶点坐标</strong>，用这些语义描述的变量不可以随便赋值，因为流水线需要使用他们来完成特定的目的；</p>
+<p>为了让Shader有更好的跨平台性，对于这些有特殊含义的变量，最好使用SV开头的语义进行修饰，虽然在大多数平台他和正常语义等价，但是PS等某些平台上如果不使用SV开头的语义，则Shader无法正常工作。</p>
+<h5 id="5-4-2-Unity支持的语义">5.4.2 Unity支持的语义</h5>
+<table>
+<thead>
+<tr>
+<th>语义</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POSITION</td>
+<td>模型空间中的顶点位置，通常是float4类型</td>
+</tr>
+<tr>
+<td>NORMAL</td>
+<td>顶点法线，通常是float3类型</td>
+</tr>
+<tr>
+<td>TANGENT</td>
+<td>顶点切线，通常是float4类型</td>
+</tr>
+<tr>
+<td>TEXCOORD n</td>
+<td>该顶点的纹理坐标，TEXCOORD0表示第一组坐标，以此类推，通常是float2或float4类型</td>
+</tr>
+<tr>
+<td>COLOR</td>
+<td>顶点颜色，通常是fixed4或float4类型</td>
+</tr>
+</tbody>
+</table>
+<p>​                                                      <strong>从应用阶段传递模型数据给顶点着色器时Unity支持的常用语义</strong></p>
+<table>
+<thead>
+<tr>
+<th>语义</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SV_POSITION</td>
+<td>裁剪空间中的顶点坐标，结构体中必须包含一个使用该语义修饰的变量</td>
+</tr>
+<tr>
+<td>COLOR0</td>
+<td>通常用于输出第一组顶点颜色，但非必须</td>
+</tr>
+<tr>
+<td>COLOR1</td>
+<td>通常用于输出第二组顶点颜色，但非必须</td>
+</tr>
+<tr>
+<td>TEXCOORD0~TEXCOORD7</td>
+<td>通常用于输出纹理坐标，但非必须</td>
+</tr>
+</tbody>
+</table>
+<p>​                                                       <strong>从顶点着色器传递数据给片元着色器时Unity使用的常用语义</strong></p>
+<table>
+<thead>
+<tr>
+<th>语义</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SV_Target</td>
+<td>输出值将会存储到渲染目标中</td>
+</tr>
+</tbody>
+</table>
+<p>​                                                                        <strong>片元着色器输出时Unity支持的常用语义</strong></p>
+<h5 id="5-4-3-语义与变量类型">5.4.3 语义与变量类型</h5>
+<p>一个语义可以使用的寄存器只能处理4个float，因此定义矩阵类型如float3X4 float4X4就需要更多的空间，一种方法是，把这些矩阵拆分成单个float，每个变量存储矩阵中的一行数据。</p>
+<h4 id="5-5-Debug">5.5 Debug</h4>
+<p>本节旨在给出对Unity Shader的调试方法：</p>
+<h5 id="5-5-1使用假彩色图像">5.5.1使用假彩色图像</h5>
+<p>假彩色图像指的是用假彩色技术生成的一种图像，一张假彩色图像可以用于可视化一些数据；</p>
+<p>主要思想是，<strong>把需要调试的变量映射到[0,1]之间，把它们作为颜色输出到屏幕上</strong>，然后通过屏幕上显示的像素颜色来判断这个值是否正确。</p>
+<h5 id="5-5-2-Graphics-Debugger">5.5.2 Graphics Debugger</h5>
+<p>详见https://blog.csdn.net/qq_29523119/article/details/78409811?locationNum=5&amp;fps=1</p>
+<h5 id="5-5-3-帧调试器">5.5.3 帧调试器</h5>
+<p>在Window-&gt;Frame Debugger中可以打开帧调试器窗口</p>
+<p>可以用于查看渲染该帧时进行的各种渲染事件</p>
+<h4 id="5-6-渲染平台的差异">5.6 渲染平台的差异</h4>
+<h5 id="5-6-1-渲染纹理的坐标差异">5.6.1 渲染纹理的坐标差异</h5>
+<p>OpenGL和DirectX的屏幕空间坐标存在差异，虽然Unity大多数情况下可以在后台自动为我们解决，但是某些情况下，比如我们需要同时处理多张渲染图像并且开启了抗锯齿(例如需要同时处理屏幕图像和法线纹理)，这些图像在竖直方向的朝向就可能是不同的；</p>
+<h5 id="5-6-2-Shader的语法差异">5.6.2 Shader的语法差异</h5>
+<p>DirectX 9/11对Shader的语义更加严格；</p>
+<h4 id="5-7-Shader整洁之道">5.7 Shader整洁之道</h4>
+<h5 id="5-7-1-变量精度">5.7.1 变量精度</h5>
+<p>基本建议：尽可能使用精度较低的类型，可以优化Shader的性能；</p>
+<h5 id="5-7-2-规范语法">5.7.2 规范语法</h5>
+<h5 id="5-7-3-避免不必要的运算">5.7.3 避免不必要的运算</h5>
+<p>过多的运算会使需要的临时寄存器数目或指令数目超过了当前可支持的数目，通常可以通过指定更高等级的Shader Target来消除这些错误；</p>
+<h5 id="5-7-4-慎用分支和循环语句">5.7.4 慎用分支和循环语句</h5>
+<p>GPU的实现和CPU不同，会降低GPU的并行处理操作，尽量把计算向上移动，例如将片元着色器的内容放到顶点着色器中，或者直接在CPU中预计算；</p>
+<h5 id="5-7-5-不要除以0">5.7.5 不要除以0</h5>
+<h3 id="第六章-Unity中的基础光照">第六章 Unity中的基础光照</h3>
+<p>渲染的基础问题：如何决定一个像素的颜色？</p>
+<p>宏观上来说，渲染包含了两大部分：决定一个像素的可见性，决定这个像素上的光照计算；而光照模型就是用于决定在一个像素上进行怎样的光照计算；</p>
+<h4 id="6-2-标准光照模型">6.2 标准光照模型</h4>
+<p>又称Phong光照模型，他只关心直接光照，也就是直接从光源发射出来照射到物体表面后，经过物体表面的一次反射直接进入摄像机的光线；</p>
+<p>他的基本方法是，把进入到摄像机内的光线分为四个部分，每个部分使用一种方法来计算它的贡献度：</p>
+<ul>
+<li>**自发光（emissive）**部分，描述当给定一个方向时，一个表面本身会向该方向发射多少辐射量（如果没有使用全局光照，自发光并不会真的照亮周围，只是他自己更亮了）</li>
+<li>**高光反射（specular）**部分，描述当光线从光源照射到模型表面时，该表面会在完全镜面反射方向散射多少辐射量</li>
+<li>**漫反射（diffuse）**部分,描述当光线从光源照射到模型表面时，该表面会向每个方向散射多少辐射量（我们假设光线在所有方向平均分布）</li>
+<li>**环境光（ambient）**部分，描述其他所有的间接光照</li>
+</ul>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">HeptagramV</a></p><p> <span>Link:  </span><a href="http://example.com/2022/04/29/Shader%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81%E5%AD%A6%E4%B9%A0/">http://example.com/2022/04/29/Shader%E5%85%A5%E9%97%A8%E7%B2%BE%E8%A6%81%E5%AD%A6%E4%B9%A0/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2022/04/27/HDRP%E5%AD%A6%E4%B9%A0/" title="HDRP学习"><span>NextPost ></span><br><span class="nextTitle">HDRP学习</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Shader入门精要</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%AF%87"><span class="toc-number">1.1.</span> <span class="toc-text">基础篇</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%AB%A0-%E6%B8%B2%E6%9F%93%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="toc-number">1.1.1.</span> <span class="toc-text">第二章 渲染流水线</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1-%E7%AE%80%E4%BB%8B"><span class="toc-number">1.1.1.1.</span> <span class="toc-text">2.1 简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-CPU%E5%92%8CGPU%E4%B9%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1"><span class="toc-number">1.1.1.2.</span> <span class="toc-text">2.2 CPU和GPU之间的通信</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-GPU%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="toc-number">1.1.1.3.</span> <span class="toc-text">2.3 GPU流水线</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-%E6%9C%AF%E8%AF%AD%E8%A7%A3%E9%87%8A%E5%8F%8A%E6%9C%AC%E7%AB%A0%E8%A7%A3%E6%83%91"><span class="toc-number">1.1.1.4.</span> <span class="toc-text">2.4 术语解释及本章解惑</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#2-4-1-%E4%BB%80%E4%B9%88%E6%98%AFOpenGL-DirectX"><span class="toc-number">1.1.1.4.1.</span> <span class="toc-text">2.4.1 什么是OpenGL&#x2F;DirectX</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-4-2-%E4%BB%80%E4%B9%88%E6%98%AFHLSL%E3%80%81GLSL%E3%80%81Cg"><span class="toc-number">1.1.1.4.2.</span> <span class="toc-text">2.4.2 什么是HLSL、GLSL、Cg</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-4-3-%E4%BB%80%E4%B9%88%E6%98%AFDraw-Call"><span class="toc-number">1.1.1.4.3.</span> <span class="toc-text">2.4.3 什么是Draw Call</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#CPU%E5%92%8CGPU%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%B9%B6%E8%A1%8C%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9F"><span class="toc-number">1.1.1.4.3.1.</span> <span class="toc-text">CPU和GPU是如何实现并行工作的？</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88Draw-Call%E5%A4%9A%E4%BA%86%E4%BC%9A%E5%BD%B1%E5%93%8D%E5%B8%A7%E7%8E%87%EF%BC%9F"><span class="toc-number">1.1.1.4.3.2.</span> <span class="toc-text">为什么Draw Call多了会影响帧率？</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%87%8F%E5%B0%91Draw-Call%EF%BC%9F"><span class="toc-number">1.1.1.4.3.3.</span> <span class="toc-text">如何减少Draw Call？</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-4-4-%E4%BB%80%E4%B9%88%E6%98%AF%E5%9B%BA%E5%AE%9A%E7%AE%A1%E7%BA%BF%E6%B8%B2%E6%9F%93"><span class="toc-number">1.1.1.4.4.</span> <span class="toc-text">2.4.4 什么是固定管线渲染</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-5-Shader"><span class="toc-number">1.1.1.5.</span> <span class="toc-text">2.5 Shader</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E7%AB%A0-Unity-Shader%E5%9F%BA%E7%A1%80"><span class="toc-number">1.1.2.</span> <span class="toc-text">第三章 Unity Shader基础</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-ShaderLab"><span class="toc-number">1.1.2.1.</span> <span class="toc-text">3.2 ShaderLab</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-3-2-Properties"><span class="toc-number">1.1.2.1.1.</span> <span class="toc-text">3.3.2 Properties</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-3-3-SubShader"><span class="toc-number">1.1.2.1.2.</span> <span class="toc-text">3.3.3 SubShader</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE"><span class="toc-number">1.1.2.1.2.1.</span> <span class="toc-text">标签</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#Pass%E8%AF%AD%E4%B9%89%E5%9D%97"><span class="toc-number">1.1.2.1.2.2.</span> <span class="toc-text">Pass语义块</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#Fallback"><span class="toc-number">1.1.2.1.2.3.</span> <span class="toc-text">Fallback</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-4-1-%E8%A1%A8%E9%9D%A2%E7%9D%80%E8%89%B2%E5%99%A8"><span class="toc-number">1.1.2.1.3.</span> <span class="toc-text">3.4.1 表面着色器</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-4-2-%E9%A1%B6%E7%82%B9-%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8"><span class="toc-number">1.1.2.1.4.</span> <span class="toc-text">3.4.2 顶点&#x2F;片元着色器</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-4-4-%E5%BD%A2%E5%BC%8F%E7%9A%84%E9%80%89%E6%8B%A9"><span class="toc-number">1.1.2.1.5.</span> <span class="toc-text">3.4.4 形式的选择</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E7%AB%A0-%E6%95%B0%E5%AD%A6"><span class="toc-number">1.1.3.</span> <span class="toc-text">第四章 数学</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E7%AB%A0-%E5%BC%80%E5%A7%8BUnity-Shader"><span class="toc-number">1.1.4.</span> <span class="toc-text">第五章 开始Unity Shader</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-%E4%B8%80%E4%B8%AA%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84%E9%A1%B6%E7%82%B9-%E7%89%87%E5%85%83%E7%9D%80%E8%89%B2%E5%99%A8"><span class="toc-number">1.1.4.1.</span> <span class="toc-text">5.2 一个最简单的顶点&#x2F;片元着色器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-3-Unity%E6%8F%90%E4%BE%9B%E7%9A%84%E5%86%85%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E5%8F%98%E9%87%8F"><span class="toc-number">1.1.4.2.</span> <span class="toc-text">5.3 Unity提供的内置文件和变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-4-Unity%E6%8F%90%E4%BE%9B%E7%9A%84Cg-HLSL%E8%AF%AD%E4%B9%89"><span class="toc-number">1.1.4.3.</span> <span class="toc-text">5.4 Unity提供的Cg&#x2F;HLSL语义</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-4-2-Unity%E6%94%AF%E6%8C%81%E7%9A%84%E8%AF%AD%E4%B9%89"><span class="toc-number">1.1.4.3.1.</span> <span class="toc-text">5.4.2 Unity支持的语义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-4-3-%E8%AF%AD%E4%B9%89%E4%B8%8E%E5%8F%98%E9%87%8F%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.4.3.2.</span> <span class="toc-text">5.4.3 语义与变量类型</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-5-Debug"><span class="toc-number">1.1.4.4.</span> <span class="toc-text">5.5 Debug</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-5-1%E4%BD%BF%E7%94%A8%E5%81%87%E5%BD%A9%E8%89%B2%E5%9B%BE%E5%83%8F"><span class="toc-number">1.1.4.4.1.</span> <span class="toc-text">5.5.1使用假彩色图像</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-5-2-Graphics-Debugger"><span class="toc-number">1.1.4.4.2.</span> <span class="toc-text">5.5.2 Graphics Debugger</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-5-3-%E5%B8%A7%E8%B0%83%E8%AF%95%E5%99%A8"><span class="toc-number">1.1.4.4.3.</span> <span class="toc-text">5.5.3 帧调试器</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-6-%E6%B8%B2%E6%9F%93%E5%B9%B3%E5%8F%B0%E7%9A%84%E5%B7%AE%E5%BC%82"><span class="toc-number">1.1.4.5.</span> <span class="toc-text">5.6 渲染平台的差异</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-6-1-%E6%B8%B2%E6%9F%93%E7%BA%B9%E7%90%86%E7%9A%84%E5%9D%90%E6%A0%87%E5%B7%AE%E5%BC%82"><span class="toc-number">1.1.4.5.1.</span> <span class="toc-text">5.6.1 渲染纹理的坐标差异</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-6-2-Shader%E7%9A%84%E8%AF%AD%E6%B3%95%E5%B7%AE%E5%BC%82"><span class="toc-number">1.1.4.5.2.</span> <span class="toc-text">5.6.2 Shader的语法差异</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-7-Shader%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93"><span class="toc-number">1.1.4.6.</span> <span class="toc-text">5.7 Shader整洁之道</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#5-7-1-%E5%8F%98%E9%87%8F%E7%B2%BE%E5%BA%A6"><span class="toc-number">1.1.4.6.1.</span> <span class="toc-text">5.7.1 变量精度</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-7-2-%E8%A7%84%E8%8C%83%E8%AF%AD%E6%B3%95"><span class="toc-number">1.1.4.6.2.</span> <span class="toc-text">5.7.2 规范语法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-7-3-%E9%81%BF%E5%85%8D%E4%B8%8D%E5%BF%85%E8%A6%81%E7%9A%84%E8%BF%90%E7%AE%97"><span class="toc-number">1.1.4.6.3.</span> <span class="toc-text">5.7.3 避免不必要的运算</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-7-4-%E6%85%8E%E7%94%A8%E5%88%86%E6%94%AF%E5%92%8C%E5%BE%AA%E7%8E%AF%E8%AF%AD%E5%8F%A5"><span class="toc-number">1.1.4.6.4.</span> <span class="toc-text">5.7.4 慎用分支和循环语句</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-7-5-%E4%B8%8D%E8%A6%81%E9%99%A4%E4%BB%A50"><span class="toc-number">1.1.4.6.5.</span> <span class="toc-text">5.7.5 不要除以0</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%85%AD%E7%AB%A0-Unity%E4%B8%AD%E7%9A%84%E5%9F%BA%E7%A1%80%E5%85%89%E7%85%A7"><span class="toc-number">1.1.5.</span> <span class="toc-text">第六章 Unity中的基础光照</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2-%E6%A0%87%E5%87%86%E5%85%89%E7%85%A7%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.5.1.</span> <span class="toc-text">6.2 标准光照模型</span></a></li></ol></li></ol></li></ol></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
