@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><meta name="author" content="HeptagramV"><meta name="renderer" content="webkit"><meta name="copyright" content="HeptagramV"><meta name="keywords" content="七酱的布洛克"><meta name="description" content=""><meta name="Cache-Control" content="no-cache"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><title>危险！幽灵小姐 · HeptagramV's Blog</title><link rel="stylesheet" href="/css/style.css?v=2018.7.9"><link rel="stylesheet" href="/css/animation.css?v=2018.7.9"><link rel="icon" href="/img/assets/web.ico"><link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css?version=1.5.6"><!-- scripts--><script>(function( w ){
+  "use strict";
+  // rel=preload support test
+  if( !w.loadCSS ){
+    w.loadCSS = function(){};
+  }
+  // define on the loadCSS obj
+  var rp = loadCSS.relpreload = {};
+  // rel=preload feature support test
+  // runs once and returns a function for compat purposes
+  rp.support = (function(){
+    var ret;
+    try {
+      ret = w.document.createElement( "link" ).relList.supports( "preload" );
+    } catch (e) {
+      ret = false;
+    }
+    return function(){
+      return ret;
+    };
+  })();
+
+  // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+  // then change that media back to its intended value on load
+  rp.bindMediaToggle = function( link ){
+    // remember existing media attr for ultimate state, or default to 'all'
+    var finalMedia = link.media || "all";
+
+    function enableStylesheet(){
+      link.media = finalMedia;
+    }
+
+    // bind load handlers to enable media
+    if( link.addEventListener ){
+      link.addEventListener( "load", enableStylesheet );
+    } else if( link.attachEvent ){
+      link.attachEvent( "onload", enableStylesheet );
+    }
+
+    // Set rel and non-applicable media type to start an async request
+    // note: timeout allows this to happen async to let rendering continue in IE
+    setTimeout(function(){
+      link.rel = "stylesheet";
+      link.media = "only x";
+    });
+    // also enable media after 3 seconds,
+    // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+    setTimeout( enableStylesheet, 3000 );
+  };
+
+  // loop through link elements in DOM
+  rp.poly = function(){
+    // double check this to prevent external calls from running
+    if( rp.support() ){
+      return;
+    }
+    var links = w.document.getElementsByTagName( "link" );
+    for( var i = 0; i < links.length; i++ ){
+      var link = links[ i ];
+      // qualify links to those with rel=preload and as=style attrs
+      if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+        // prevent rerunning on link
+        link.setAttribute( "data-loadcss", true );
+        // bind listeners to toggle media back
+        rp.bindMediaToggle( link );
+      }
+    }
+  };
+
+  // if unsupported, run the polyfill
+  if( !rp.support() ){
+    // run once at least
+    rp.poly();
+
+    // rerun poly on an interval until onload
+    var run = w.setInterval( rp.poly, 500 );
+    if( w.addEventListener ){
+      w.addEventListener( "load", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    } else if( w.attachEvent ){
+      w.attachEvent( "onload", function(){
+        rp.poly();
+        w.clearInterval( run );
+      } );
+    }
+  }
+
+
+  // commonjs
+  if( typeof exports !== "undefined" ){
+    exports.loadCSS = loadCSS;
+  }
+  else {
+    w.loadCSS = loadCSS;
+  }
+}( typeof global !== "undefined" ? global : this ) );</script><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" defer></script><script src="/js/main.js?v=2018.7.9" defer></script><!-- fancybox--><link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"><script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script><!-- busuanzi--><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><meta name="generator" content="Hexo 6.1.0"></head><body><section class="profile-close" id="cxo-profile"><div class="profile-avatar"><i class="fa fa-caret-left"></i><img src="/img/assets/headpic.jpg"></div><!--.profile-saying
+  i.fa.fa-comment
+  .saying--><div class="cxo-profile-inner"><div class="profile-name">七酱</div><div class="profile-signature">姑且算个游戏开发人</div><div class="read-progress"></div></div></section><header id="cxo-intro" style="height: 70vh;background-image: url(/img/intro/index-bg.png);"><nav id="cxo-intro-nav"><section><div class="intro-nav-title"><a href="/">HeptagramV's Blog</a></div><div class="intro-nav-label-box"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div><i class="fa fa-bars intro-nav-menu"><div class="intro-nav-drop"><a href="/">Home</a><a href="/about/">About</a><a href="/archives/">Archives</a><a href="/tags/">Tags</a></div></i><div class="clear"></div></section></nav><h1 class="post-title">危险！幽灵小姐</h1><div class="post-intros"><div class="post-intro-meta"><span class="post-intro-time"><i class="post-intro-calendar fa fa-calendar"></i><span>2022-06-26</span></span><span class="post-intro-tags"><a class="intro-tag fa fa-tag" href="javascript:void(0)" date-tags="作品"> 作品</a></span></div></div></header><article class="cxo-up" id="cxo-content-outer"><section id="cxo-content-inner"><article class="article-entry" id="post"><h1 id="危险！魔女小姐"><a href="#危险！魔女小姐" class="headerlink" title="危险！魔女小姐"></a>危险！魔女小姐</h1><p>组队开发作品</p>
+<p>担任：策划、程序</p>
+<p>游戏引擎：Unity</p>
+<p>开发时间：2022.6.24 17:00 ~ 2022.6.26 17:00</p>
+<p>游戏类型：解密</p>
+<p>开发背景：CGJ 2022 48h极限开发</p>
+<p>游戏截图：</p>
+<p><img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/ui%E8%83%8C%E6%99%AF.png" alt="ui背景"></p>
+<p><img src="http://a1.qpic.cn/psc?/V12BAs454eRh92/ruAMsa53pVQWN7FLK88i5hin7hBBvVuqmfmeCMSaogoN2c6PO2iiD5R9.yV.*q8ZmhdDfOyhpmbpjuo3VItHM4kYq7btPJw0zON0dcLus5o!/m&ek=1&kp=1&pt=0&bo=FwF3ARcBdwERECc!&tl=3&vuin=2524728060&tm=1656237600&dis_t=1656238077&dis_k=279f918af81e61e867bfd135c43e7bff&sce=60-4-3&rf=0-0" alt="img"></p>
+<p><img src="https://files.gmhub.com/storage/upload/PxBSNulrXr4SJfct2mSHznDnB69C5tM3xzpHRfKm.jpg.webp" alt="preview"></p>
+<p><img src="https://files.gmhub.com/storage/upload/Y1n8ZJl4IbCKPxyOtmuyJKdnrtxQYxmOmVMwlsWE.jpg.webp" alt="preview"></p>
+<p><img src="https://files.gmhub.com/storage/upload/7udGvAgcdH9N6ZGZ3ONbfjSCSiMVdJQ0UlxlGoUM.jpg.webp" alt="preview"></p>
+<p><img src="https://files.gmhub.com/storage/upload/htAvK77ycX2MizbYESaevxhjl5A71nc1CH92dI38.jpg.webp" alt="preview"></p>
+<p><img src="https://heptagramv-blog.oss-cn-beijing.aliyuncs.com/img/%E7%BB%93%E5%B1%80.png" alt="结局"></p>
+<p><strong>在万圣节装扮成幽灵的孩子将要进行一场“愉快”的冒险（</strong></p>
+<p><strong>主角会在路上不断遇到来自场地的捉弄，想办法找到去往下一关卡的正确路径，或是在手忙脚乱颠沛流离中莫名其妙到达终点吧！</strong></p>
+<p>官网地址（内置下载）：<a target="_blank" rel="noopener" href="https://www.gmhub.com/game/1247">https://www.gmhub.com/game/1247</a></p>
+<p>本次三人小队参赛，感谢非常强力的2D美术和3D美术，程序写的也是天昏地转，基本是屎山写法没有时间去优化）希望明年能产出更多更好jam作品</p>
+</article><!-- lincense--><div class="license-wrapper"><p> <span>Author:  </span><a href="http://example.com">HeptagramV</a></p><p> <span>Link:  </span><a href="http://example.com/2022/06/26/%E5%8D%B1%E9%99%A9%EF%BC%81%E5%B9%BD%E7%81%B5%E5%B0%8F%E5%A7%90/">http://example.com/2022/06/26/%E5%8D%B1%E9%99%A9%EF%BC%81%E5%B9%BD%E7%81%B5%E5%B0%8F%E5%A7%90/</a></p><p> <span>Copyright:  </span><span>All articles in this blog are licensed under <a rel="license noopener" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/3.0">CC BY-NC-SA 3.0</a> unless stating additionally.</span></p></div><div class="post-paginator"><a class="nextSlogan" href="/2022/06/07/I-JUST-WANT-TO-SLEEP/" title="I JUST WANT TO SLEEP"><span>NextPost ></span><br><span class="nextTitle">I JUST WANT TO SLEEP</span></a><div class="clear"></div></div><div id="comment"></div></section></article><footer id="cxo-footer-outer"><div id="cxo-footer-inner"><p class="footer-container"><span>Site by </span><a target="_blank" rel="noopener" href="http://hexo.io"><span>Hexo</span></a><span> | theme </span><a target="_blank" rel="noopener" href="https://github.com/Longlongyu/hexo-theme-Cxo"><span>Cxo</span></a></p><i class="fa fa-user"> </i><span id="busuanzi_value_site_uv"></span><span> | </span><i class="fa fa-eye"> </i><span id="busuanzi_value_site_pv"></span></div></footer><!-- catelog--><div class="toc-wrapper" style="top: 70vh;"><div class="toc-catalog"><i class="fa fa-list"> </i><span>CATALOG</span></div><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%B1%E9%99%A9%EF%BC%81%E9%AD%94%E5%A5%B3%E5%B0%8F%E5%A7%90"><span class="toc-number">1.</span> <span class="toc-text">危险！魔女小姐</span></a></li></ol></div><!-- top--><i class="fa fa-arrow-up close" id="go-up" aria-hidden="true"></i></body></html>
